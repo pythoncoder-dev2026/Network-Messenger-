@@ -10,7 +10,6 @@ env:
   APP_NAME: "Network messenger"
   PACKAGE_NAME: "com.network.messenger"
   APP_VERSION: "1.0.0"
-  STRICT_CHECK: "false"
 
 permissions:
   contents: write
@@ -27,37 +26,31 @@ jobs:
           java-version: 17
 
       - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "9.3.1"
 
-      - name: Check app identity (package and version)
+      - name: Find project folder
         run: |
-          FILES=$(find . -type f \( -name "*.gradle" -o -name "*.gradle.kts" -o -name "gradle.properties" -o -name "libs.versions.toml" -o -name "AndroidManifest.xml" \) -not -path "*/build/*" -not -path "*/.gradle/*")
-          echo "Files checked:"
-          echo "$FILES"
-          ERR=0
-          if ! echo "$FILES" | xargs grep -qs "$PACKAGE_NAME"; then
-            echo "::warning::Package name $PACKAGE_NAME was not found."
-            ERR=1
-          fi
-          if ! echo "$FILES" | xargs grep -qsE "versionName.*$APP_VERSION"; then
-            echo "::warning::versionName $APP_VERSION was not found."
-            ERR=1
-          fi
-          if [ "$ERR" = "1" ] && [ "$STRICT_CHECK" = "true" ]; then
-            echo "::error::App identity check failed."
+          SETTINGS=$(find . -maxdepth 3 -type f \( -name "settings.gradle" -o -name "settings.gradle.kts" \) -not -path "*/build/*" | head -n 1)
+          if [ -z "$SETTINGS" ]; then
+            echo "::error::settings.gradle(.kts) not found. Upload the full Android project."
             exit 1
           fi
-          echo "Building $APP_NAME ($PACKAGE_NAME) v$APP_VERSION"
-
-      - name: Make gradlew executable
-        run: |
-          if [ ! -f gradlew ]; then
-            echo "::error::gradlew not found in repo root."
-            exit 1
-          fi
-          chmod +x gradlew
+          DIR=$(dirname "$SETTINGS")
+          echo "PROJECT_DIR=$DIR" >> "$GITHUB_ENV"
+          echo "Project folder: $DIR"
+          ls -la "$DIR"
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: |
+          cd "$PROJECT_DIR"
+          if [ -f gradlew ]; then
+            chmod +x gradlew
+            ./gradlew assembleDebug --stacktrace
+          else
+            echo "gradlew not found, using installed Gradle"
+            gradle assembleDebug --stacktrace
+          fi
 
       - name: Rename APK
         run: |
