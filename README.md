@@ -29,4 +29,6 @@ Cryptography uses well-known libraries (Tink or libsodium), not custom crypto. T
 
 ## License
 
-Add your preferred license (for example MIT or Apache-2.0).
+Copyright (C) 2026 pythondecoder-dev2026
+
+This project is licensed under the GNU General Public License v3.0 or later (GPL-3.0-or-later). See the [LICENSE](LICENSE) file for details.
