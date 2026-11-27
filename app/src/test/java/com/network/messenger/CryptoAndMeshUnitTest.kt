@@ -16,7 +16,7 @@ import org.robolectric.annotation.Config
 import java.security.GeneralSecurityException
 
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [36])
+@Config(sdk = [35])
 class CryptoAndMeshUnitTest {
 
     private class InMemoryKeyStorage : KeyStorage {
@@ -89,12 +89,12 @@ class CryptoAndMeshUnitTest {
         logRepo.info(LogCategory.TRANSPORT, "Started")
         val first = logRepo.entries.value.first()
         assertTrue(first.isHeader)
-        assertTrue(first.message.startsWith("Network messenger v1.1.0 (com.network.messenger)"))
+        assertTrue(first.message.startsWith("Network messenger v1.0.0 (com.network.messenger)"))
 
         logRepo.clear()
         val afterClearFirst = logRepo.entries.value.first()
         assertTrue(afterClearFirst.isHeader)
-        assertTrue(afterClearFirst.message.startsWith("Network messenger v1.1.0 (com.network.messenger)"))
+        assertTrue(afterClearFirst.message.startsWith("Network messenger v1.0.0 (com.network.messenger)"))
     }
 
     @Test

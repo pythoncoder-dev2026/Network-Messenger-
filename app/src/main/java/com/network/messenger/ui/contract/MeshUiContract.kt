@@ -25,8 +25,8 @@ import com.network.messenger.domain.model.UserReport
 data class MeshUiState(
     val appName: String = "Network messenger",
     val packageName: String = "com.network.messenger",
-    val versionName: String = "1.1.0",
-    val versionCode: Int = 2,
+    val versionName: String = "1.0.0",
+    val versionCode: Int = 1,
     val localUserId: String = "",
     val shortUserId: String = "",
     val myVerificationQrPayload: String = "",

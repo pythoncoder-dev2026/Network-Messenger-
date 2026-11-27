@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Network messenger</string>
     <string name="app_package">com.network.messenger</string>
-    <string name="app_version_display">v1.1.0 (2)</string>
+    <string name="app_version_display">v1.0.0 (1)</string>
     <string name="notification_channel_mesh">Mesh Radio Service</string>
     <string name="notification_channel_mesh_desc">Keeps encrypted mesh transports and store-and-forward active while the screen is off.</string>
     <string name="notification_mesh_title">Network messenger active</string>
