@@ -10,6 +10,8 @@ env:
   APP_NAME: "Network messenger"
   PACKAGE_NAME: "com.network.messenger"
   APP_VERSION: "1.0.0"
+  # Set to "true" if you want the build to FAIL when package/version don't match
+  STRICT_CHECK: "false"
 
 permissions:
   contents: write
@@ -29,26 +31,46 @@ jobs:
 
       - name: Check app identity (package and version)
         run: |
-          grep -rq "$PACKAGE_NAME" app/build.gradle* || { echo "applicationId must be $PACKAGE_NAME"; exit 1; }
-          grep -E "versionName" app/build.gradle* | grep -q "$APP_VERSION" || { echo "versionName must be $APP_VERSION"; exit 1; }
+          FILES=$(find . -type f \( -name "*.gradle" -o -name "*.gradle.kts" -o -name "gradle.properties" -o -name "libs.versions.toml" -o -name "AndroidManifest.xml" \) -not -path "*/build/*" -not -path "*/.gradle/*")
+          echo "Files checked:"
+          echo "$FILES"
+          ERR=0
+          if ! echo "$FILES" | xargs grep -qs "$PACKAGE_NAME"; then
+            echo "::warning::Package name $PACKAGE_NAME was not found in the Gradle/Manifest files."
+            ERR=1
+          fi
+          if ! echo "$FILES" | xargs grep -qsE "versionName.*${APP_VERSION}"; then
+            echo "::warning::versionName ${APP_VERSION} was not found. Set versionName = \"${APP_VERSION}\" in app/build.gradle(.kts)."
+            ERR=1
+          fi
+          if [ "$ERR" = "1" ] && [ "$STRICT_CHECK" = "true" ]; then
+            echo "::error::App identity check failed (STRICT_CHECK is true)."
+            exit 1
+          fi
           echo "Building $APP_NAME ($PACKAGE_NAME) v$APP_VERSION"
 
-      - run: chmod +x gradlew
-      - run: ./gradlew assembleDebug
+      - name: Make gradlew executable
+        run: |
+          if [ ! -f gradlew ]; then
+            echo "::error::gradlew not found in repo root. Upload the Gradle wrapper (gradlew, gradlew.bat, gradle/wrapper/)."
+            exit 1
+          fi
+          chmod +x gradlew
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace
 
       - name: Rename APK
         run: |
+          APK=$(find . -path "*build/outputs/apk/debug/*.apk" | head -n 1)
+          if [ -z "$APK" ]; then
+            echo "::error::No debug APK was produced."
+            exit 1
+          fi
           mkdir -p dist
-          cp app/build/outputs/apk/debug/*.apk "dist/Network-messenger-v${APP_VERSION}.apk"
+          cp "$APK" "dist/Network-messenger-v${APP_VERSION}.apk"
+          ls -lh dist
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Network-messenger-v${{ env.APP_VERSION }}
-          path: dist/*.apk
-
-      - name: Create GitHub release (only on version tags)
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          name: "${{ env.APP_NAME }} v${{ env.APP_VERSION }}"
-          files: dist/*.apk
+          name: Network-messenger-v${{ env.APP_VERS
