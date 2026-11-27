@@ -1,0 +1,12 @@
+{
+  "name": "network-messenger-relay",
+  "version": "1.0.0",
+  "description": "Zero-knowledge WebSocket relay server for Network messenger (com.network.messenger)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

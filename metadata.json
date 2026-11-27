@@ -1,0 +1,6 @@
+{
+  "name": "Network messenger",
+  "description": "End-to-end encrypted push-to-talk and mesh messaging over Bluetooth/BLE Nearby, Wi-Fi LAN/Direct, and Internet WebSocket relay.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
